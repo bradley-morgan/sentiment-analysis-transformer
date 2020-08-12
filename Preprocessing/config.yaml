@@ -1,0 +1,18 @@
+
+---
+
+#                                 TEXT PRE-PROCESSOR CONFIGURATION FILE (TPCF)
+
+# TODO support csv and other formats
+
+config_id: "TPCF"
+save_config: true
+config_name: "config_test1"
+data_source: ""
+save_location: ""
+data_type: "json"
+
+transforms: "tbc"
+
+
+
