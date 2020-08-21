@@ -1,7 +1,31 @@
+batch_size:
+  units: gb
+  value: 1
 config_id: TPCF
 config_name: config_test1
-data_source: ''
-data_type: json
+data_source: ../Datasets/Books_5.json.gz
+fields:
+  label:
+    name: overall
+    stats:
+      avg: true
+      median: true
+  text:
+    name: reviewText
+    stats:
+      avg_len: true
+      max_len: true
+      min_len: true
+      word_cloud: true
+input_data_type: json
+output_data_type: csv
+output_source: ''
 save_config: true
 save_location: ''
-transforms: tbc
+transforms:
+  lemmatize: true
+  punc_removal:
+    active: true
+    omissions: < > ^ { ]
+  stop_word_removal: true
+word_embeddings: glove

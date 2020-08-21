@@ -1,31 +1,43 @@
-import gzip
-import json
 import os
 import yaml
-from Preprocessing.Exceptions.ConfigNotFound import ConfigNotFound as ConfigNotFound
+from tqdm import tqdm
+from torch.utils.data import IterableDataset, DataLoader
+from Preprocessing.DataReaders.JSONParser import JSONParser
+from Preprocessing.Exceptions.ConfigNotFound import ConfigNotFound
+from Preprocessing.Exceptions.InvalidInputDataType import InvalidInputDataType
+from Preprocessing.Exceptions.FieldErrors import TextFieldNotFound, LabelFieldNotFound
+
+#               TODO's
+# 20 TODO add a make config template function
+# 30 TODO is_config_valid. Add once all transforms are defined
+# 37 TODO list transformations and order them according to whether they listed and are active
+# 94 TODO Check if text field is None: log as missing give iteration number so can find later
+# 95 TODO Check if text field is a non-empty str: Log if not with iteration number
+# 96 TODO Check if label field is None: log as missing give iteration number so can find later
+# 97 TODO Check if label field is a non-empty int or float: Log if not with iteration number
+#    TODO In Logs calculate the average and min and max sentiment rating, count and map labels to data points so
+#    that they can be normalised and balanced
 
 
-class DataPreprocessor:
+class DataPreprocessor(IterableDataset):
 
     def __init__(self):
 
-        # check if config exists
-        # read config
-        # Check all parameters are there
-        # save config if true
-        # init main processing loop
+        self.parser = None
 
         try:
             if not self.is_config_available():
                 raise ConfigNotFound()
-                #TODO add a make config template function
 
             self.config = self.read_config()
 
-            # TODO is_config_valid. Add once all transforms are defined
+
+            self.identify_parser()
 
             if self.config['save_config']:
                 self.save_config()
+
+
 
 
         except Exception as e:
@@ -50,10 +62,53 @@ class DataPreprocessor:
             print(f'Configuration file {name} successfully saved to'
                   f' ./Saved_Configurations directory')
 
+    def identify_parser(self):
+
+        if self.config['input_data_type'] == 'json':
+            self.parser = JSONParser(self.config['data_source'], self.config['batch_size'])
+        else:
+            raise InvalidInputDataType()
+
+
+    def preprocess_text(self, text_data):
+
+        return text_data
+
+
+
+
+    def get_stream(self, data):
+        # parse dictionary and extract required data field relative to config
+
+        text_field = self.config['fields']['text']['name']
+        label_field = self.config['fields']['label']['name']
+
+        if text_field not in data.keys():
+            raise TextFieldNotFound(expectedField=text_field)
+
+        if label_field not in data.keys():
+            raise LabelFieldNotFound(expectedField=label_field)
+
+        text_data = data[text_field]
+        label_data = data[label_field]
+
+        text_data = self.preprocess_text(text_data)
+
+        return text_data, label_data
+
+
+
+    def __iter__(self):
+
+        return map(self.get_stream, self.parser)
 
 
 
 
 
 if __name__ == "__main__":
-    DataPreprocessor()
+    dataset = DataPreprocessor()
+    dataLoader = DataLoader(dataset, batch_size=64)
+
+    for batch in dataLoader:
+        print(batch)

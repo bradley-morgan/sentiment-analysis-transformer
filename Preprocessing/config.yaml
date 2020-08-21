@@ -1,18 +1,52 @@
 
 ---
 
-#                                 TEXT PRE-PROCESSOR CONFIGURATION FILE (TPCF)
+#                                 SENTIMENT ANALYSIS TEXT PRE-PROCESSOR CONFIGURATION FILE (TPCF)
 
-# TODO support csv and other formats
+# TODO Input should always be tabular data
+# TODO input data type support csv and other formats
+# TODO add support for BERT extracted embeddings
 
 config_id: "TPCF"
 save_config: true
 config_name: "config_test1"
-data_source: ""
+
+data_source: "../Datasets/Books_5.json.gz"
 save_location: ""
-data_type: "json"
+input_data_type: "json"
 
-transforms: "tbc"
+batch_size:
+  units: "gb" # supports int batch size(bs) or memory limit (gb)
+  value: 1
 
+fields:
+  text:
+    name: "reviewText"
+    stats:
+      avg_len: true
+      min_len: true
+      max_len: true
+      word_cloud: true
+
+  label:
+    name: "overall"
+    stats:
+      avg: true
+      median: true
+
+word_embeddings: 'glove'
+
+transforms:
+  # Handle label transformation to numeric if required
+  stop_word_removal: true
+  lemmatize: true
+  punc_removal:
+    active: true
+    omissions: "< > ^ { ]"
+
+
+
+output_source: ""
+output_data_type: "csv"
 
 
