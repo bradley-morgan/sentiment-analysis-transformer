@@ -23,9 +23,13 @@ output_source: ''
 save_config: true
 save_location: ''
 transforms:
-  lemmatize: true
-  punc_removal:
+  Lemmantize:
+    active: true
+  PunctuationRemoval:
     active: true
     omissions: < > ^ { ]
-  stop_word_removal: true
+  StopWordRemoval:
+    active: true
+  TestTransform:
+    active: true
 word_embeddings: glove

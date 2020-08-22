@@ -1,6 +1,6 @@
 import os
 import yaml
-from tqdm import tqdm
+import importlib
 from torch.utils.data import IterableDataset, DataLoader
 from Preprocessing.DataReaders.JSONParser import JSONParser
 from Preprocessing.Exceptions.ConfigNotFound import ConfigNotFound
@@ -31,12 +31,11 @@ class DataPreprocessor(IterableDataset):
 
             self.config = self.read_config()
 
-
-            self.identify_parser()
-
             if self.config['save_config']:
                 self.save_config()
 
+            self.identify_parser()
+            self.transforms = self.prepare_transforms()
 
 
 
@@ -69,8 +68,37 @@ class DataPreprocessor(IterableDataset):
         else:
             raise InvalidInputDataType()
 
+    def init_transform_plugins(self):
+        plugin_files = os.listdir('./Transforms')
+        plugins = {}
+        for plugin in plugin_files:
+            plugins[plugin.lower()] = True
+
+        return plugins
+
+    def prepare_transforms(self):
+
+        transform_plugins = self.init_transform_plugins()
+        transform_list = []
+        transform_config = self.config['transforms']
+        transform_config = dict(filter(lambda transform: transform[1]['active'] == True, transform_config.items()))
+
+        for key, plugin_config in transform_config.items():
+            try:
+                _ = transform_plugins[f'{key.lower()}.py']
+                plugin = importlib.import_module(f'Transforms.{key}', package='./Transforms')
+                plugin = plugin.Transform(plugin_config)
+                transform_list.append(plugin)
+            except KeyError as e:
+                pass
+
+        return transform_list
+
 
     def preprocess_text(self, text_data):
+
+        for transform in self.transforms:
+            text_data = transform(text_data)
 
         return text_data
 

@@ -1,7 +1,9 @@
 
-class PunctuationRemoval:
+class Transform:
 
-    def __init__(self, omissions):
+    def __init__(self, config):
+
+        # config should just be the transform part of the configuration
 
         #TODO if bert tokenizer is used then class should omit BERT special chars like ## check huggingface docs
 
@@ -11,7 +13,7 @@ class PunctuationRemoval:
                          "'":True, "|":True, "r'\'":True, "<":True, ">":True, ",":True, ".":True, "?":True,
                          "/":True, "§":True, "±":True}
 
-        self.omissions = self.init_omissions(omissions)
+        self.omissions = self.init_omissions(config['omissions'])
 
 
     def init_omissions(self, omissions):
@@ -26,7 +28,7 @@ class PunctuationRemoval:
         return output_dic
 
 
-    def is_special_char(self, token):
+    def __call__(self, token):
 
         # if it has not been listed as character  ignore then proceed
         if not self.omissions[token]:
@@ -39,3 +41,5 @@ class PunctuationRemoval:
 
 if __name__ == '__main__':
     sentence1 = "Hello! my name is gary$ { | and i like <html>"
+    punc_removal = PunctuationRemoval(omissions=['!'])
+    punc_removal = punc_removal(token=sentence1)

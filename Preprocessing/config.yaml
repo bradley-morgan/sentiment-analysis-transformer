@@ -38,12 +38,18 @@ word_embeddings: 'glove'
 
 transforms:
   # Handle label transformation to numeric if required
-  stop_word_removal: true
-  lemmatize: true
-  punc_removal:
+  StopWordRemoval:
+    active: true
+
+  TestTransform:
+    active: true
+
+  Lemmantize:
+    active: true
+
+  PunctuationRemoval:
     active: true
     omissions: "< > ^ { ]"
-
 
 
 output_source: ""
