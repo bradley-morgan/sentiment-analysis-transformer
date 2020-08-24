@@ -14,6 +14,7 @@ Using transformer architecture only with BERT pre-trained weights to perform sen
 - [ ] Data Eng: Create and test Statistics plugin 
 - [ ] Data Eng: Label Balancer to make sure roughly equal amounts of each label to some threshold (doesnt have to be exact)
 - [ ] Data Eng: Label normalizer plugin (normalise values between 0-1)
+- [ ] Data Eng: Add Assertions to validate config and inputs
 - [ ] Data Eng: Optmize with multi-threading (check that pytorch uses full cpu capacity all 6 of them)
 - [ ] Data Eng: Optional: if multithreading not enough add multiprocessing
 - [ ] Data Eng: Optional: Add Cython optimisations where applicable
