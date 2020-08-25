@@ -1,10 +1,13 @@
 
 class ConfigNotFound (Exception):
 
-    def __init__(self):
+    def __init__(self, custom_message=None):
 
-        self.message = "DataPreprocessor could not find a valid config.yaml file please create one using MakeConfigFile()" \
+        if custom_message == None:
+            self.message = "DataPreprocessor could not find a valid config.yaml file please create one using MakeConfigFile()" \
                        "place a valid config file into the same directory as DataPreprocessor.py"
+        else:
+            self.message = custom_message
 
     def __str__(self):
         return f"ConfigNotFound: {self.message}"

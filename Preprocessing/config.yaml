@@ -41,15 +41,17 @@ transforms:
   StopWordRemoval:
     active: true
 
-  TestTransform:
-    active: true
-
-  Lemmantize:
-    active: true
-
   PunctuationRemoval:
     active: true
-    omissions: "< > ^ { ]"
+    omissions: "      "  #e.g "< > ^ , \\' { ]"
+    within_word: true
+
+  Lemmatize:
+    active: true
+    cache: true
+    # set cache per sample to false if want caching to apply across dataset (Warning may take lots of memory)
+    cache_per_sample: false
+
 
 
 output_source: ""

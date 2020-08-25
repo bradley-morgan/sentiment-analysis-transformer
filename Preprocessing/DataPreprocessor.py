@@ -1,7 +1,9 @@
 import os
 import yaml
+from collections import OrderedDict
 import importlib
 from torch.utils.data import IterableDataset, DataLoader
+from torch.utils.data.dataloader import default_collate
 from Preprocessing.DataReaders.JSONParser import JSONParser
 from Preprocessing.Exceptions.ConfigNotFound import ConfigNotFound
 from Preprocessing.Exceptions.InvalidInputDataType import InvalidInputDataType
@@ -9,7 +11,9 @@ from Preprocessing.Exceptions.FieldErrors import TextFieldNotFound, LabelFieldNo
 
 #               TODO's
 # 20 TODO add a make config template function
-# 30 TODO is_config_valid. Add once all transforms are defined
+# 30 TODO is_config_valid. Add once all transforms are define
+#    TODO Lower case all config inputs
+#    TODO make sure listed transforms actaully exist in the transform folder if active if not throw error
 # 37 TODO list transformations and order them according to whether they listed and are active
 # 94 TODO Check if text field is None: log as missing give iteration number so can find later
 # 95 TODO Check if text field is a non-empty str: Log if not with iteration number
@@ -19,11 +23,17 @@ from Preprocessing.Exceptions.FieldErrors import TextFieldNotFound, LabelFieldNo
 #    that they can be normalised and balanced
 
 
+#               Sub-TODO
+#   TODO create all transforms then add check for embeddings after
+
 class DataPreprocessor(IterableDataset):
 
     def __init__(self):
 
         self.parser = None
+        self.transform_plugins = None
+        # Last items get added to transform_list first
+        self.essential_plugins = {'BasicTokenizer': {'active': 'essential'}, 'Lower': {'active': 'essential'}}
 
         try:
             if not self.is_config_available():
@@ -36,8 +46,6 @@ class DataPreprocessor(IterableDataset):
 
             self.identify_parser()
             self.transforms = self.prepare_transforms()
-
-
 
         except Exception as e:
             raise e
@@ -74,18 +82,30 @@ class DataPreprocessor(IterableDataset):
         for plugin in plugin_files:
             plugins[plugin.lower()] = True
 
-        return plugins
+        # TODO Check that all essential plugins exist in the transforms folder
+
+        self.transform_plugins = plugins
 
     def prepare_transforms(self):
 
-        transform_plugins = self.init_transform_plugins()
+        self.init_transform_plugins()
         transform_list = []
         transform_config = self.config['transforms']
-        transform_config = dict(filter(lambda transform: transform[1]['active'] == True, transform_config.items()))
+        transform_config = OrderedDict(filter(lambda transform: transform[1]['active'] == True, transform_config.items()))
+
+        # Add any transforms that must always be performed here e.g tokenizer
+        if len(transform_config) > 0:
+            #  if there any optional plugins then they need applying before BERT based tokenzation
+            #  BERT tokenizer splits text into word pieces which makes properessing after difficult
+            #  thus we need to pretokenization to allow for preprocessing
+            for essential_plugin_key, essential_plugin_value in self.essential_plugins.items():
+                transform_config[essential_plugin_key] = essential_plugin_value
+                transform_config.move_to_end(essential_plugin_key, last=False)
 
         for key, plugin_config in transform_config.items():
             try:
-                _ = transform_plugins[f'{key.lower()}.py']
+                if plugin_config['active'] != 'essential':
+                    _ = self.transform_plugins[f'{key.lower()}.py']
                 plugin = importlib.import_module(f'Transforms.{key}', package='./Transforms')
                 plugin = plugin.Transform(plugin_config)
                 transform_list.append(plugin)
@@ -94,16 +114,12 @@ class DataPreprocessor(IterableDataset):
 
         return transform_list
 
-
     def preprocess_text(self, text_data):
 
         for transform in self.transforms:
             text_data = transform(text_data)
 
         return text_data
-
-
-
 
     def get_stream(self, data):
         # parse dictionary and extract required data field relative to config
@@ -133,10 +149,10 @@ class DataPreprocessor(IterableDataset):
 
 
 
-
 if __name__ == "__main__":
     dataset = DataPreprocessor()
     dataLoader = DataLoader(dataset, batch_size=64)
 
     for batch in dataLoader:
+        # Creating embeddings using batches rather than line by line more effecient to run the Networks on batches
         print(batch)

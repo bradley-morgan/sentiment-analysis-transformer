@@ -3,43 +3,56 @@ class Transform:
 
     def __init__(self, config):
 
-        # config should just be the transform part of the configuration
-
-        #TODO if bert tokenizer is used then class should omit BERT special chars like ## check huggingface docs
+        self.config = config
 
         self.special_chars = {'!': True, '@': True, '£': True, '€': True, '#':True, '$':True, '%':True,
                          '^':True, '&':True, '*':True, '(':True, ')':True, "_":True, "-":True, "+":True,
                          "=":True, "{":True, "[":True, "}":True, "]":True, ":":True, ";":True, '"':True,
-                         "'":True, "|":True, "r'\'":True, "<":True, ">":True, ",":True, ".":True, "?":True,
+                         "'":True, "|":True, "'\'":True, "<":True, ">":True, ",":True, ".":True, "?":True,
                          "/":True, "§":True, "±":True}
 
         self.omissions = self.init_omissions(config['omissions'])
-
+        self.inRecursive_state = False
 
     def init_omissions(self, omissions):
         output_dic = {}
+        omissions = omissions.strip()
+        if not omissions:
+            return output_dic
+
         for o in omissions:
             try:
-                val = output_dic[o]
+                _ = output_dic[o]
 
             except KeyError as e:
-                output_dic[o] = True
+                output_dic[o.strip()] = True
 
         return output_dic
 
 
-    def __call__(self, token):
+    def __call__(self, token_sequence):
 
-        # if it has not been listed as character  ignore then proceed
-        if not self.omissions[token]:
+        output_token_sequence = []
+        for token in token_sequence:
+
             try:
-                self.special_chars[token]
-                return True
-            except:
-                return False
+                _ = self.omissions[token]
+                output_token_sequence.append(token)
 
+            except KeyError as e:
 
-if __name__ == '__main__':
-    sentence1 = "Hello! my name is gary$ { | and i like <html>"
-    punc_removal = PunctuationRemoval(omissions=['!'])
-    punc_removal = punc_removal(token=sentence1)
+                try:
+                    _ = self.special_chars[token]
+
+                except KeyError as e:
+                    if self.config['within_word'] and not self.inRecursive_state:
+                        self.inRecursive_state = True
+                        token = self(list(token))
+                        self.inRecursive_state = False
+                    output_token_sequence.append(token)
+
+        if self.inRecursive_state:
+            return ''.join(output_token_sequence)
+
+        return output_token_sequence
+

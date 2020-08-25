@@ -23,13 +23,14 @@ output_source: ''
 save_config: true
 save_location: ''
 transforms:
-  Lemmantize:
+  Lemmatize:
     active: true
+    cache: true
+    cache_per_sample: false
   PunctuationRemoval:
     active: true
-    omissions: < > ^ { ]
+    omissions: '      '
+    within_word: true
   StopWordRemoval:
-    active: true
-  TestTransform:
     active: true
 word_embeddings: glove
