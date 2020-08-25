@@ -21,3 +21,7 @@ Using transformer architecture only with BERT pre-trained weights to perform sen
 - [ ] ML:       Use dash to create training metrics and paramters
 - [ ] ML:       Implement Basyian optimisation
 
+# Problems 
+
+- [ ] Data Eng: Iterable dataset in pytorch only allows batch sizes of equal length. Need to create my own iterator (have to manually do multithreading) or have to find a way to make pytorch use variable batch sizes using collate_fn or pad to fix length (this very ineffecient)
+
