@@ -86,13 +86,7 @@ class DataPreprocessor(IterableDataset):
 
         self.transform_plugins = plugins
 
-    def prepare_transforms(self):
-
-        self.init_transform_plugins()
-        transform_list = []
-        transform_config = self.config['transforms']
-        transform_config = OrderedDict(filter(lambda transform: transform[1]['active'] == True, transform_config.items()))
-
+    def prepare_essential_plugins(self, transform_config):
         # Add any transforms that must always be performed here e.g tokenizer
         if len(transform_config) > 0:
             #  if there any optional plugins then they need applying before BERT based tokenzation
@@ -101,6 +95,22 @@ class DataPreprocessor(IterableDataset):
             for essential_plugin_key, essential_plugin_value in self.essential_plugins.items():
                 transform_config[essential_plugin_key] = essential_plugin_value
                 transform_config.move_to_end(essential_plugin_key, last=False)
+
+            # Add rejoining of text list to string for BERT retokenization using Word piece
+            if self.config['word_embeddings'] == "bert":
+                transform_config['RejoinText'] = {'active': 'essential'}
+
+        return transform_config
+
+    def prepare_transforms(self):
+
+        self.init_transform_plugins()
+        transform_list = []
+        transform_config = self.config['transforms']
+        transform_config = OrderedDict(filter(lambda transform: transform[1]['active'] == True, transform_config.items()))
+
+        # Add any transforms that must always be performed here e.g tokenizer
+        transform_config = self.prepare_essential_plugins(transform_config)
 
         for key, plugin_config in transform_config.items():
             try:
@@ -140,18 +150,17 @@ class DataPreprocessor(IterableDataset):
 
         return text_data, label_data
 
-
-
     def __iter__(self):
-
         return map(self.get_stream, self.parser)
 
-
-
+    def collate_func(self, batch):
+        # Kinda weird but it stop pytorch complaining about variable sized batches which i dont care about
+        return batch
 
 if __name__ == "__main__":
+
     dataset = DataPreprocessor()
-    dataLoader = DataLoader(dataset, batch_size=64)
+    dataLoader = DataLoader(dataset, batch_size=64, collate_fn=dataset.collate_func)
 
     for batch in dataLoader:
         # Creating embeddings using batches rather than line by line more effecient to run the Networks on batches
