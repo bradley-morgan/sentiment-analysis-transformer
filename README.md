@@ -4,10 +4,14 @@ Using transformer architecture only with BERT pre-trained weights to perform sen
 - [x] Data Eng: Create config
 - [x] Data Eng: Created InterableDataset stream
 - [x] Data Eng: Create Plugin transform system
-- [ ] Data Eng: Create and test pre-bert Tokenizer plugin
-- [ ] Data Eng: Create and test Stop word removal Plugin
-- [ ] Data Eng: Create and test Lemantizer plugin
-- [ ] Data Eng: Create and test Punctuation/special charcter with omission removal plugin
+- [x] Data Eng: Create and test pre-bert Tokenizer plugin
+- [x] Data Eng: Create and test Stop word removal Plugin
+- [x] Data Eng: Create and test Lemantizer plugin
+- [ ] Data Eng: test Punctuation/special charcter with omission removal plugin
+- [ ] Data Eng: test pre-bert Tokenizer plugin
+- [ ] Data Eng: test Stop word removal Plugin
+- [ ] Data Eng: test Lemantizer plugin
+- [ ] Data Eng: test Punctuation/special charcter with omission removal plugin
 - [ ] Data Eng: Create BERT Embedding extractor plugin 
 - [ ] Data Eng: Create Glove Embedding extractor plugin 
 - [ ] ML:       For Glove Embeddings: Add Vocab handler (max vocab size, min_word frequency)
