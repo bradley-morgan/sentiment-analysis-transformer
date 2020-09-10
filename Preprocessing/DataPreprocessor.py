@@ -33,7 +33,7 @@ class DataPreprocessor(IterableDataset):
         self.parser = None
         self.transform_plugins = None
         # Last items get added to transform_list first
-        self.essential_plugins = {'BasicTokenizer': {'active': 'essential'}, 'Lower': {'active': 'essential'}}
+        self.essential_plugins = {'BasicTokenizer': {'active': 'essential'}}
 
         try:
             if not self.is_config_available():

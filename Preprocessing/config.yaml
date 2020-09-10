@@ -34,9 +34,13 @@ fields:
       avg: true
       median: true
 
-word_embeddings: 'glove'
+word_embeddings: 'bert'
 
 transforms:
+
+  Lower:
+    active: false
+
   # Handle label transformation to numeric if required
   StopWordRemoval:
     active: true
@@ -51,6 +55,7 @@ transforms:
     cache: true
     # set cache per sample to false if want caching to apply across dataset (Warning may take lots of memory)
     cache_per_sample: false
+
 
 
 

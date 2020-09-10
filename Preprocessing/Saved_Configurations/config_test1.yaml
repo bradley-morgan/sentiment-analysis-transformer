@@ -27,10 +27,12 @@ transforms:
     active: true
     cache: true
     cache_per_sample: false
+  Lower:
+    active: false
   PunctuationRemoval:
     active: true
     omissions: '      '
     within_word: true
   StopWordRemoval:
     active: true
-word_embeddings: glove
+word_embeddings: bert
