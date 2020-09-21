@@ -13,8 +13,6 @@ Using transformer architecture only with BERT pre-trained weights to perform sen
 - [ ] Data Eng: test Lemantizer plugin
 - [ ] Data Eng: test Punctuation/special charcter with omission removal plugin
 - [ ] Data Eng: Create BERT Embedding extractor plugin 
-- [ ] Data Eng: Create Glove Embedding extractor plugin 
-- [ ] ML:       For Glove Embeddings: Add Vocab handler (max vocab size, min_word frequency)
 - [ ] Data Eng: Create and test Statistics plugin 
 - [ ] Data Eng: Label Balancer to make sure roughly equal amounts of each label to some threshold (doesnt have to be exact)
 - [ ] Data Eng: Label normalizer plugin (normalise values between 0-1)
@@ -27,5 +25,5 @@ Using transformer architecture only with BERT pre-trained weights to perform sen
 
 # Problems 
 
-- [ ] Data Eng: Iterable dataset in pytorch only allows batch sizes of equal length. Need to create my own iterator (have to manually do multithreading) or have to find a way to make pytorch use variable batch sizes using collate_fn or pad to fix length (this very ineffecient)
+- [ x ] Data Eng: Iterable dataset in pytorch only allows batch sizes of equal length. Need to create my own iterator (have to manually do multithreading) or have to find a way to make pytorch use variable batch sizes using collate_fn or pad to fix length (this very ineffecient)
 
